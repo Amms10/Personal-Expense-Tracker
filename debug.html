@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Tab Navigation</title>
+    <style>
+        .tab-btn { padding: 10px; margin: 5px; border: 1px solid #ccc; background: #f0f0f0; }
+        .tab-btn.active { background: #007bff; color: white; }
+        .tab-panel { display: none; padding: 20px; border: 1px solid #ccc; margin-top: 10px; }
+        .tab-panel.active { display: block; }
+    </style>
+</head>
+<body>
+    <h1>Tab Navigation Debug</h1>
+    
+    <nav>
+        <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+        <button class="tab-btn" data-tab="expenses">Expenses</button>
+        <button class="tab-btn" data-tab="budget">Budget</button>
+    </nav>
+    
+    <div id="dashboard-tab" class="tab-panel active">
+        <h2>Dashboard Content</h2>
+        <p>This is the dashboard tab.</p>
+    </div>
+    
+    <div id="expenses-tab" class="tab-panel">
+        <h2>Expenses Content</h2>
+        <p>This is the expenses tab.</p>
+    </div>
+    
+    <div id="budget-tab" class="tab-panel">
+        <h2>Budget Content</h2>
+        <p>This is the budget tab.</p>
+    </div>
+
+    <script>
+        // Simple tab switching function
+        function switchTab(tabName) {
+            console.log('Switching to tab:', tabName);
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
+            if (activeTab) activeTab.classList.add('active');
+
+            // Update tab panels
+            document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+            const activePanel = document.getElementById(`${tabName}-tab`);
+            if (activePanel) activePanel.classList.add('active');
+        }
+
+        // Bind events
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, binding events...');
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    console.log('Tab clicked:', e.target.dataset.tab);
+                    switchTab(e.target.dataset.tab);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

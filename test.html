@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Manager Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .pass { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .fail { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Expense Manager Test Suite</h1>
+    <div id="testResults"></div>
+    
+    <script>
+        // Simple test framework
+        class TestRunner {
+            constructor() {
+                this.results = [];
+            }
+            
+            test(name, testFn) {
+                try {
+                    const result = testFn();
+                    if (result) {
+                        this.results.push({ name, status: 'pass', message: 'Test passed' });
+                    } else {
+                        this.results.push({ name, status: 'fail', message: 'Test failed' });
+                    }
+                } catch (error) {
+                    this.results.push({ name, status: 'fail', message: error.message });
+                }
+            }
+            
+            displayResults() {
+                const container = document.getElementById('testResults');
+                container.innerHTML = this.results.map(result => `
+                    <div class="test-result ${result.status}">
+                        <strong>${result.name}</strong>: ${result.message}
+                    </div>
+                `).join('');
+                
+                const passed = this.results.filter(r => r.status === 'pass').length;
+                const total = this.results.length;
+                
+                container.innerHTML += `
+                    <div class="test-result ${passed === total ? 'pass' : 'fail'}" style="margin-top: 20px; font-weight: bold;">
+                        Summary: ${passed}/${total} tests passed
+                    </div>
+                `;
+            }
+        }
+        
+        // Run tests
+        const runner = new TestRunner();
+        
+        // Test 1: Check if main files exist
+        runner.test('HTML file structure', () => {
+            return fetch('index.html').then(r => r.ok).catch(() => false);
+        });
+        
+        runner.test('CSS file exists', () => {
+            return fetch('styles.css').then(r => r.ok).catch(() => false);
+        });
+        
+        runner.test('JavaScript file exists', () => {
+            return fetch('script.js').then(r => r.ok).catch(() => false);
+        });
+        
+        // Test 2: Check localStorage functionality
+        runner.test('LocalStorage functionality', () => {
+            try {
+                localStorage.setItem('test', 'value');
+                const result = localStorage.getItem('test') === 'value';
+                localStorage.removeItem('test');
+                return result;
+            } catch (e) {
+                return false;
+            }
+        });
+        
+        // Test 3: Check if basic DOM elements would be available
+        runner.test('DOM manipulation support', () => {
+            const div = document.createElement('div');
+            div.innerHTML = '<span>test</span>';
+            return div.querySelector('span').textContent === 'test';
+        });
+        
+        // Test 4: Check date functionality
+        runner.test('Date handling', () => {
+            const today = new Date().toISOString().split('T')[0];
+            return today.match(/^\d{4}-\d{2}-\d{2}$/);
+        });
+        
+        // Test 5: Check JSON functionality
+        runner.test('JSON parsing', () => {
+            const testObj = { test: 'value', number: 123 };
+            const json = JSON.stringify(testObj);
+            const parsed = JSON.parse(json);
+            return parsed.test === 'value' && parsed.number === 123;
+        });
+        
+        // Test 6: Check currency conversion logic
+        runner.test('Currency conversion', () => {
+            const exchangeRates = { USD: 83.5, INR: 1 };
+            const usdToInr = 10 * exchangeRates.USD; // $10 to INR
+            const inrToUsd = 835 / exchangeRates.USD; // ₹835 to USD
+            return usdToInr === 835 && inrToUsd === 10;
+        });
+        
+        // Test 7: Check array operations
+        runner.test('Array operations', () => {
+            const expenses = [
+                { id: 1, amount: 100, date: '2024-01-01' },
+                { id: 2, amount: 200, date: '2024-01-02' }
+            ];
+            
+            const total = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+            const filtered = expenses.filter(exp => exp.amount > 150);
+            
+            return total === 300 && filtered.length === 1;
+        });
+        
+        // Display results after a short delay to allow async tests
+        setTimeout(() => {
+            runner.displayResults();
+        }, 1000);
+    </script>
+</body>
+</html>

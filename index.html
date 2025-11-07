@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Expense Manager</title>
+    <meta name="description" content="Track your expenses, manage budgets, and achieve your savings goals">
+    <meta name="theme-color" content="#36454f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="ExpenseManager">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Favicon and Apple Touch Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512x512.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="icons/icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="icons/icon-128x128.png">
+    <link rel="apple-touch-icon" sizes="96x96" href="icons/icon-96x96.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="icons/icon-72x72.png">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>💰 Personal Expense Manager</h1>
+                <div class="header-actions">
+                    <button id="themeToggle" class="header-btn">🌙</button>
+                    <button id="helpBtn" class="header-btn">💡</button>
+                </div>
+            </div>
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="summary-icon">📅</div>
+                    <div class="summary-content">
+                        <span class="summary-label">This Month</span>
+                        <span id="monthlyTotal" class="summary-amount">₹0.00</span>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">💰</div>
+                    <div class="summary-content">
+                        <span class="summary-label">Total Expenses</span>
+                        <span id="totalExpenses" class="summary-amount">₹0.00</span>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">📊</div>
+                    <div class="summary-content">
+                        <span class="summary-label">This Week</span>
+                        <span id="weeklyTotal" class="summary-amount">₹0.00</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="tab-navigation">
+            <button class="tab-btn active" data-tab="dashboard">🏠 Dashboard</button>
+            <button class="tab-btn" data-tab="expenses">💰 Expenses</button>
+            <button class="tab-btn" data-tab="budget">📊 Budget</button>
+            <button class="tab-btn" data-tab="analytics">📈 Analytics</button>
+            <button class="tab-btn" data-tab="goals">🎯 Goals</button>
+            <button class="tab-btn" data-tab="settings">⚙️ Settings</button>
+        </nav>
+
+        <main class="main-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard-tab" class="tab-panel active">
+                <div class="dashboard-grid">
+                    <div class="quick-add-card">
+                        <h3>⚡ Quick Add Expense</h3>
+                        <form id="quickExpenseForm" class="quick-form">
+                            <div class="quick-form-row">
+                                <input type="text" id="quickDescription" placeholder="What did you buy?" required>
+                                <div class="amount-input-group">
+                                    <input type="number" id="quickAmount" placeholder="Amount" step="0.01" required>
+                                    <select id="quickCurrency" class="currency-select">
+                                        <option value="INR">₹</option>
+                                        <option value="USD">$</option>
+                                        <option value="EUR">€</option>
+                                        <option value="GBP">£</option>
+                                        <option value="JPY">¥</option>
+                                        <option value="AUD">A$</option>
+                                        <option value="CAD">C$</option>
+                                        <option value="CHF">₣</option>
+                                        <option value="CNY">¥</option>
+                                        <option value="SGD">S$</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="quick-form-row">
+                                <select id="quickCategory" required>
+                                    <option value="">Category</option>
+                                    <option value="food">🍔 Food</option>
+                                    <option value="transport">🚗 Transport</option>
+                                    <option value="shopping">🛍️ Shopping</option>
+                                    <option value="bills">📄 Bills</option>
+                                    <option value="entertainment">🎬 Entertainment</option>
+                                    <option value="health">🏥 Health</option>
+                                    <option value="other">📦 Other</option>
+                                </select>
+                                <button type="submit" class="quick-add-btn">Add Expense</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="recent-expenses-card">
+                        <h3>📋 Recent Expenses</h3>
+                        <div id="recentExpensesList" class="recent-expenses-list"></div>
+                        <button class="view-all-btn" onclick="expenseManager.switchTab('expenses')">View All Expenses</button>
+                    </div>
+                    
+                    <div class="budget-overview-card">
+                        <h3>💰 Budget Overview</h3>
+                        <div id="budgetOverview" class="budget-overview"></div>
+                    </div>
+                    
+                    <div class="goals-overview-card">
+                        <h3>🎯 Goals Progress</h3>
+                        <div id="goalsOverview" class="goals-overview"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expenses Tab -->
+            <div id="expenses-tab" class="tab-panel">
+                <div class="expenses-header">
+                    <h2>💰 Manage Expenses</h2>
+                    <button id="addExpenseBtn" class="primary-btn">+ Add Expense</button>
+                </div>
+                
+                <div class="expenses-filters">
+                    <div class="filter-group">
+                        <input type="text" id="searchExpenses" placeholder="🔍 Search expenses..." class="search-input">
+                        <select id="filterCategory">
+                            <option value="">All Categories</option>
+                            <option value="food">🍔 Food & Dining</option>
+                            <option value="transport">🚗 Transportation</option>
+                            <option value="shopping">🛍️ Shopping</option>
+                            <option value="bills">📄 Bills & Utilities</option>
+                            <option value="entertainment">🎬 Entertainment</option>
+                            <option value="health">🏥 Health & Medical</option>
+                            <option value="other">📦 Other</option>
+                        </select>
+                        <select id="filterMonth">
+                            <option value="">All Months</option>
+                        </select>
+                        <select id="sortBy">
+                            <option value="date-desc">📅 Newest First</option>
+                            <option value="date-asc">📅 Oldest First</option>
+                            <option value="amount-desc">💰 Highest Amount</option>
+                            <option value="amount-asc">💰 Lowest Amount</option>
+                        </select>
+                    </div>
+                    <div class="bulk-actions">
+                        <button id="selectAllBtn" class="secondary-btn">Select All</button>
+                        <button id="deleteSelectedBtn" class="danger-btn" disabled>Delete Selected</button>
+                        <button id="exportBtn" class="secondary-btn">📥 Export</button>
+                        <button id="importBtn" class="secondary-btn">📤 Import</button>
+                        <input type="file" id="importFile" accept=".csv,.json" style="display: none;">
+                    </div>
+                </div>
+                
+                <div id="expensesList" class="expenses-list"></div>
+            </div>
+
+            <!-- Budget Tab -->
+            <div id="budget-tab" class="tab-panel">
+                <div class="budget-header">
+                    <h2>📊 Budget Management</h2>
+                    <button id="setBudgetBtn" class="primary-btn">Set Budgets</button>
+                </div>
+                <div id="budgetStatus" class="budget-status-grid"></div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="analytics-tab" class="tab-panel">
+                <div class="analytics-header">
+                    <h2>📈 Analytics & Insights</h2>
+                    <select id="analyticsTimeframe" class="timeframe-select">
+                        <option value="current-month">This Month</option>
+                        <option value="last-month">Last Month</option>
+                        <option value="last-3-months">Last 3 Months</option>
+                        <option value="last-6-months">Last 6 Months</option>
+                        <option value="current-year">This Year</option>
+                    </select>
+                </div>
+                <div class="analytics-grid">
+                    <div class="chart-card">
+                        <h3>📈 Spending Trend</h3>
+                        <canvas id="trendChart" width="400" height="200"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>🥧 Category Breakdown</h3>
+                        <canvas id="categoryChart" width="300" height="300"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>📊 Monthly Comparison</h3>
+                        <canvas id="comparisonChart" width="400" height="200"></canvas>
+                    </div>
+                    <div class="insights-card">
+                        <h3>💡 Insights</h3>
+                        <div id="insightsContainer" class="insights-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Goals Tab -->
+            <div id="goals-tab" class="tab-panel">
+                <div class="goals-header">
+                    <h2>🎯 Savings Goals</h2>
+                    <button id="addGoalBtn" class="primary-btn">+ Add Goal</button>
+                </div>
+                <div id="goalsContainer" class="goals-grid"></div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settings-tab" class="tab-panel">
+                <div class="settings-grid">
+                    <div class="settings-card">
+                        <h3>🌍 Currency & Display</h3>
+                        <div class="setting-item">
+                            <label for="displayCurrency">Display Currency:</label>
+                            <select id="displayCurrency">
+                                <option value="INR">₹ INR (Indian Rupee)</option>
+                                <option value="USD">$ USD (US Dollar)</option>
+                                <option value="EUR">€ EUR (Euro)</option>
+                                <option value="GBP">£ GBP (British Pound)</option>
+                                <option value="JPY">¥ JPY (Japanese Yen)</option>
+                                <option value="AUD">A$ AUD (Australian Dollar)</option>
+                                <option value="CAD">C$ CAD (Canadian Dollar)</option>
+                                <option value="CHF">₣ CHF (Swiss Franc)</option>
+                                <option value="CNY">¥ CNY (Chinese Yuan)</option>
+                                <option value="SGD">S$ SGD (Singapore Dollar)</option>
+                                <option value="BRL">R$ BRL (Brazilian Real)</option>
+                                <option value="MXN">$ MXN (Mexican Peso)</option>
+                                <option value="KRW">₩ KRW (South Korean Won)</option>
+                                <option value="THB">฿ THB (Thai Baht)</option>
+                                <option value="ZAR">R ZAR (South African Rand)</option>
+                                <option value="RUB">₽ RUB (Russian Ruble)</option>
+                                <option value="TRY">₺ TRY (Turkish Lira)</option>
+                                <option value="PLN">zł PLN (Polish Zloty)</option>
+                                <option value="SEK">kr SEK (Swedish Krona)</option>
+                                <option value="NOK">kr NOK (Norwegian Krone)</option>
+                                <option value="DKK">kr DKK (Danish Krone)</option>
+                                <option value="HUF">Ft HUF (Hungarian Forint)</option>
+                                <option value="CZK">Kč CZK (Czech Koruna)</option>
+                                <option value="ILS">₪ ILS (Israeli Shekel)</option>
+                                <option value="AED">د.إ AED (UAE Dirham)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-card">
+                        <h3>🏷️ Categories</h3>
+                        <div class="setting-actions">
+                            <button onclick="expenseManager.showCustomCategoriesModal()" class="primary-btn">Manage Categories</button>
+                            <p style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.5rem;">
+                                Create custom expense categories with your own icons and names.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-card">
+                        <h3>🎨 Dashboard</h3>
+                        <div class="setting-actions">
+                            <button onclick="expenseManager.showDashboardCustomizer()" class="primary-btn">Customize Dashboard</button>
+                            <p style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.5rem;">
+                                Show or hide dashboard widgets and summary cards.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-card">
+                        <h3>🔄 Recurring Expenses</h3>
+                        <button id="addRecurringBtn" class="primary-btn">+ Add Recurring</button>
+                        <div id="recurringList" class="recurring-list"></div>
+                    </div>
+                    
+                    <div class="settings-card">
+                        <h3>📸 Photo Management</h3>
+                        <div class="photo-stats">
+                            <span id="photoCount">0 photos stored</span>
+                            <button id="clearPhotosBtn" class="danger-btn">Clear All Photos</button>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-card">
+                        <h3>🔐 Security</h3>
+                        <div class="security-actions">
+                            <button id="setPasswordBtn" class="primary-btn">Set Password</button>
+                            <button id="changePasswordBtn" class="secondary-btn" disabled>Change Password</button>
+                            <button id="removePasswordBtn" class="danger-btn" disabled>Remove Password</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Expense Modal -->
+        <div id="expenseModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="expenseModalTitle">Add Expense</h3>
+                    <button id="closeExpenseModal" class="close-btn">✕</button>
+                </div>
+                <div class="modal-body">
+                    <form id="expenseForm">
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <input type="text" id="description" placeholder="What did you spend on?" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="amount">Amount</label>
+                                <div class="amount-input-group">
+                                    <input type="number" id="amount" placeholder="0.00" step="0.01" required>
+                                    <select id="currency" class="currency-select">
+                                        <option value="INR">₹ INR</option>
+                                        <option value="USD">$ USD</option>
+                                        <option value="EUR">€ EUR</option>
+                                        <option value="GBP">£ GBP</option>
+                                        <option value="JPY">¥ JPY</option>
+                                        <option value="AUD">A$ AUD</option>
+                                        <option value="CAD">C$ CAD</option>
+                                        <option value="CHF">₣ CHF</option>
+                                        <option value="CNY">¥ CNY</option>
+                                        <option value="SGD">S$ SGD</option>
+                                        <option value="BRL">R$ BRL</option>
+                                        <option value="MXN">$ MXN</option>
+                                        <option value="KRW">₩ KRW</option>
+                                        <option value="THB">฿ THB</option>
+                                        <option value="ZAR">R ZAR</option>
+                                        <option value="RUB">₽ RUB</option>
+                                        <option value="TRY">₺ TRY</option>
+                                        <option value="PLN">zł PLN</option>
+                                        <option value="SEK">kr SEK</option>
+                                        <option value="NOK">kr NOK</option>
+                                        <option value="DKK">kr DKK</option>
+                                        <option value="HUF">Ft HUF</option>
+                                        <option value="CZK">Kč CZK</option>
+                                        <option value="ILS">₪ ILS</option>
+                                        <option value="AED">د.إ AED</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="category">Category</label>
+                                <select id="category" required>
+                                    <option value="">Select Category</option>
+                                    <option value="food">🍔 Food & Dining</option>
+                                    <option value="transport">🚗 Transportation</option>
+                                    <option value="shopping">🛍️ Shopping</option>
+                                    <option value="bills">📄 Bills & Utilities</option>
+                                    <option value="entertainment">🎬 Entertainment</option>
+                                    <option value="health">🏥 Health & Medical</option>
+                                    <option value="other">📦 Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="date">Date</label>
+                            <input type="date" id="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="receiptPhoto">Receipt Photo (Optional)</label>
+                            <input type="file" id="receiptPhoto" accept="image/*" style="display: none;">
+                            <label for="receiptPhoto" class="photo-upload-btn">
+                                📸 Add Receipt Photo
+                            </label>
+                            <div id="photoPreview" class="photo-preview-container"></div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="cancelExpense" class="secondary-btn">Cancel</button>
+                            <button type="submit" class="primary-btn">Save Expense</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Budget Modal -->
+        <div id="budgetModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Set Monthly Budgets</h3>
+                    <button id="closeBudgetModal" class="close-btn">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="budget-form">
+                        <div class="budget-item">
+                            <label>🍔 Food & Dining</label>
+                            <input type="number" id="budget-food" placeholder="Monthly budget" step="0.01">
+                        </div>
+                        <div class="budget-item">
+                            <label>🚗 Transportation</label>
+                            <input type="number" id="budget-transport" placeholder="Monthly budget" step="0.01">
+                        </div>
+                        <div class="budget-item">
+                            <label>🛍️ Shopping</label>
+                            <input type="number" id="budget-shopping" placeholder="Monthly budget" step="0.01">
+                        </div>
+                        <div class="budget-item">
+                            <label>📄 Bills & Utilities</label>
+                            <input type="number" id="budget-bills" placeholder="Monthly budget" step="0.01">
+                        </div>
+                        <div class="budget-item">
+                            <label>🎬 Entertainment</label>
+                            <input type="number" id="budget-entertainment" placeholder="Monthly budget" step="0.01">
+                        </div>
+                        <div class="budget-item">
+                            <label>🏥 Health & Medical</label>
+                            <input type="number" id="budget-health" placeholder="Monthly budget" step="0.01">
+                        </div>
+                        <div class="budget-item">
+                            <label>📦 Other</label>
+                            <input type="number" id="budget-other" placeholder="Monthly budget" step="0.01">
+                        </div>
+                    </div>
+                    <button id="saveBudgets" class="primary-btn">Save Budgets</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Goal Modal -->
+        <div id="goalModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Add Savings Goal</h3>
+                    <button id="closeGoalModal" class="close-btn">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="goal-form">
+                        <div class="form-group">
+                            <label for="goalName">Goal Name</label>
+                            <input type="text" id="goalName" placeholder="e.g., Vacation Fund" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="goalTarget">Target Amount</label>
+                                <input type="number" id="goalTarget" placeholder="Target Amount" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="goalDeadline">Target Date</label>
+                                <input type="date" id="goalDeadline" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="goalCategory">Category</label>
+                                <select id="goalCategory">
+                                    <option value="vacation">🏖️ Vacation</option>
+                                    <option value="emergency">🚨 Emergency Fund</option>
+                                    <option value="gadget">📱 Gadgets</option>
+                                    <option value="home">🏠 Home</option>
+                                    <option value="education">📚 Education</option>
+                                    <option value="investment">📈 Investment</option>
+                                    <option value="other">🎯 Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="goalInitialAmount">Initial Amount</label>
+                                <input type="number" id="goalInitialAmount" placeholder="Initial Amount (Optional)" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                    <button id="saveGoal" class="primary-btn">Save Goal</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recurring Modal -->
+        <div id="recurringModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Add Recurring Expense</h3>
+                    <button id="closeRecurringModal" class="close-btn">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="recurring-form">
+                        <div class="form-group">
+                            <label for="recurringDescription">Description</label>
+                            <input type="text" id="recurringDescription" placeholder="e.g., Netflix Subscription" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="recurringAmount">Amount</label>
+                                <div class="amount-input-group">
+                                    <input type="number" id="recurringAmount" placeholder="Amount" step="0.01" required>
+                                    <select id="recurringCurrency" class="currency-select">
+                                        <option value="INR">₹ INR</option>
+                                        <option value="USD">$ USD</option>
+                                        <option value="EUR">€ EUR</option>
+                                        <option value="GBP">£ GBP</option>
+                                        <option value="JPY">¥ JPY</option>
+                                        <option value="AUD">A$ AUD</option>
+                                        <option value="CAD">C$ CAD</option>
+                                        <option value="CHF">₣ CHF</option>
+                                        <option value="CNY">¥ CNY</option>
+                                        <option value="SGD">S$ SGD</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="recurringCategory">Category</label>
+                                <select id="recurringCategory" required>
+                                    <option value="">Select Category</option>
+                                    <option value="food">🍔 Food & Dining</option>
+                                    <option value="transport">🚗 Transportation</option>
+                                    <option value="shopping">🛍️ Shopping</option>
+                                    <option value="bills">📄 Bills & Utilities</option>
+                                    <option value="entertainment">🎬 Entertainment</option>
+                                    <option value="health">🏥 Health & Medical</option>
+                                    <option value="other">📦 Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="recurringFrequency">Frequency</label>
+                                <select id="recurringFrequency" required>
+                                    <option value="">Select Frequency</option>
+                                    <option value="weekly">📅 Weekly</option>
+                                    <option value="monthly">📅 Monthly</option>
+                                    <option value="quarterly">📅 Quarterly</option>
+                                    <option value="yearly">📅 Yearly</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="recurringStartDate">Start Date</label>
+                                <input type="date" id="recurringStartDate" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="recurringEndDate">End Date (Optional)</label>
+                            <input type="date" id="recurringEndDate">
+                        </div>
+                    </div>
+                    <button id="saveRecurring" class="primary-btn">Save Recurring Expense</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Password Modal -->
+        <div id="passwordModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="passwordModalTitle">Set App Password</h3>
+                    <button id="closePasswordModal" class="close-btn">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="password-form">
+                        <div class="form-group" id="currentPasswordRow" style="display: none;">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword" placeholder="Current Password">
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" placeholder="New Password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+                        </div>
+                        <div class="password-strength">
+                            <div class="strength-bar">
+                                <div id="strengthIndicator" class="strength-fill"></div>
+                            </div>
+                            <span id="strengthText">Enter a password</span>
+                        </div>
+                    </div>
+                    <button id="savePassword" class="primary-btn">Save Password</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    
+    <!-- PWA Installation and Service Worker -->
+    <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New content is available, show update notification
+                                    if (window.expenseManager) {
+                                        window.expenseManager.showUpdateNotification();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        let installButton;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('PWA install prompt triggered');
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show install button
+            showInstallButton();
+        });
+
+        function showInstallButton() {
+            // Create install button if it doesn't exist
+            if (!installButton) {
+                installButton = document.createElement('button');
+                installButton.innerHTML = '📱 Install App';
+                installButton.className = 'install-btn';
+                installButton.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    background: var(--primary-color);
+                    color: white;
+                    border: none;
+                    padding: 12px 20px;
+                    border-radius: 25px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    box-shadow: var(--shadow-lg);
+                    z-index: 1000;
+                    transition: all 0.3s ease;
+                    font-size: 14px;
+                `;
+                
+                installButton.addEventListener('click', installApp);
+                document.body.appendChild(installButton);
+                
+                // Animate in
+                setTimeout(() => {
+                    installButton.style.transform = 'translateY(0)';
+                    installButton.style.opacity = '1';
+                }, 100);
+            }
+        }
+
+        async function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                    hideInstallButton();
+                } else {
+                    console.log('User dismissed the install prompt');
+                }
+                
+                deferredPrompt = null;
+            }
+        }
+
+        function hideInstallButton() {
+            if (installButton) {
+                installButton.style.transform = 'translateY(100px)';
+                installButton.style.opacity = '0';
+                setTimeout(() => {
+                    if (installButton && installButton.parentNode) {
+                        installButton.parentNode.removeChild(installButton);
+                    }
+                }, 300);
+            }
+        }
+
+        // Hide install button when app is installed
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('PWA was installed');
+            hideInstallButton();
+            
+            // Show success message
+            if (window.expenseManager) {
+                window.expenseManager.showNotification('🎉 App installed successfully! You can now use it offline.', 'success');
+            }
+        });
+
+        // Handle app shortcuts
+        const urlParams = new URLSearchParams(window.location.search);
+        const action = urlParams.get('action');
+        const tab = urlParams.get('tab');
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (action === 'add-expense' && window.expenseManager) {
+                    window.expenseManager.showExpenseModal();
+                } else if (tab && window.expenseManager) {
+                    window.expenseManager.switchTab(tab);
+                }
+            }, 1000);
+        });
+
+        // Listen for service worker messages
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('message', event => {
+                if (event.data && event.data.type === 'SYNC_COMPLETE') {
+                    console.log('Sync completed:', event.data.data.syncedCount, 'expenses');
+                    if (window.expenseManager) {
+                        window.expenseManager.showNotification(
+                            `✅ Synced ${event.data.data.syncedCount} expenses`, 
+                            'success'
+                        );
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
